@@ -1,5 +1,4 @@
 import numpy as np
-import torch
 import cv2
 
 class PoseEstimator:
@@ -10,7 +9,8 @@ class PoseEstimator:
         
         # Read the network into Memory
         self.net = cv2.dnn.readNetFromCaffe(protoFile, weightsFile)
-    def pose_estimate(self, frame):
+    def pose_estimate(self, frame, threshold=1):
+        frameHeight, frameWidth = frame.shape
         # Specify the input image dimensions
         inWidth = 368
         inHeight = 368
@@ -39,7 +39,7 @@ class PoseEstimator:
             y = (frameHeight * point[1]) / H
         
             if prob > threshold :
-                cv2.circle(frame, (int(x), int(y)), 15, (0, 255, 255), thickness=-1, lineType=cv.FILLED)
+                cv2.circle(frame, (int(x), int(y)), 15, (0, 255, 255), thickness=-1, lineType=cv2.FILLED)
                 cv2.putText(frame, "{}".format(i), (int(x), int(y)), cv2.FONT_HERSHEY_SIMPLEX, 1.4, (0, 0, 255), 3, lineType=cv2.LINE_AA)
         
                 # Add the point to the list if the probability is greater than the threshold
@@ -47,10 +47,13 @@ class PoseEstimator:
             else :
                 points.append(None)
 
+        return points
+
 if __name__ == '__main__':
     video_file = ''
 
     cap = cv2.VideoCapture(video_file)
+    net = PoseEstimator()
     
     while cap.isOpened():
         ret, frame = cap.read()
@@ -59,6 +62,8 @@ if __name__ == '__main__':
             print("Can't receive frame (stream end?). Exiting ...")
             break
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        
+        points = net.pose_estimate(frame)
         cv2.imshow('frame', gray)
         if cv2.waitKey(1) == ord('q'):
             break
