@@ -20,15 +20,15 @@ def check_rotation(video_path):
     return rotate_code
 
 class PoseEstimator:
-    def __init__(self, mode="mpi"):
+    def __init__(self, mode='mpi'):
         # Specify the paths for the 2 files
-        if mode == "coco":
+        if mode == 'coco':
             self.proto_file = "../models/pose/coco/pose_deploy_linevec.prototxt"
             self.weights_file = "../models/pose/coco/pose_iter_440000.caffemodel"
             self.n_points = 18
             self.pose_pairs = [ [1,0],[1,2],[1,5],[2,3],[3,4],[5,6],[6,7],[1,8],[8,9],[9,10],[1,11],[11,12],[12,13],[0,14],[0,15],[14,16],[15,17]]
 
-        elif mode == "mpi" :
+        elif mode == 'mpi' :
             self.proto_file = "../models/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt"
             self.weights_file = "../models/pose/mpi/pose_iter_160000.caffemodel"
             self.n_points = 15
@@ -80,7 +80,7 @@ if __name__ == '__main__':
     video_path = '../data/henry.mp4'
     output_path = '../output/henry_pose.mp4'
 
-    cap = cv2.VideoCapture(video_path, cv2.CAP_FFMPEG)
+    cap = cv2.VideoCapture(video_path)
 
     if not cap.isOpened():
         raise Exception("VideoCapture object cannot be opened")
@@ -94,7 +94,7 @@ if __name__ == '__main__':
     
     vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
-    pose = PoseEstimator()
+    pose = PoseEstimator(mode='coco')
     
     while cap.isOpened():
         t = time.time()
