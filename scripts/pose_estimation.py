@@ -77,10 +77,14 @@ class PoseEstimator:
         return points
 
 if __name__ == '__main__':
-    video_path = '../data/henry.mp4'
-    output_path = '../output/henry_pose.mp4'
+    # video_path = '../data/henry.mp4'
+    # output_path = '../output/henry_pose.mp4'
 
-    cap = cv2.VideoCapture(video_path)
+    # cap = cv2.VideoCapture(video_path)
+
+    output_path = '../output/webcam.mp4'
+
+    cap = cv2.VideoCapture(-1)
 
     if not cap.isOpened():
         raise Exception("VideoCapture object cannot be opened")
@@ -121,8 +125,8 @@ if __name__ == '__main__':
 
         cv2.putText(frame, "time taken = {:.2f} sec".format(time.time() - t), (50, 50), cv2.FONT_HERSHEY_COMPLEX, .8, (255, 50, 0), 2, lineType=cv2.LINE_AA)
         
-        # cv2.imshow('Output Pose', frame)
-        # cv2.waitKey()
+        cv2.imshow('Output Pose', frame)
+        cv2.waitKey(1)
 
         vid_writer.write(frame)
     vid_writer.release()
