@@ -77,14 +77,14 @@ class PoseEstimator:
         return points
 
 if __name__ == '__main__':
-    # video_path = '../data/henry.mp4'
-    # output_path = '../output/henry_pose.mp4'
+    video_path = '../data/henry.mp4'
+    output_path = '../output/henry_pose.mp4'
 
-    # cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(video_path)
 
-    output_path = '../output/webcam.mp4'
+    # output_path = '../output/webcam.mp4'
 
-    cap = cv2.VideoCapture(-1)
+    # cap = cv2.VideoCapture(-1)
 
     if not cap.isOpened():
         raise Exception("VideoCapture object cannot be opened")
