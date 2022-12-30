@@ -27,12 +27,13 @@ class PoseEstimator:
             self.weights_file = "../models/pose/coco/pose_iter_440000.caffemodel"
             self.n_points = 18
             self.pose_pairs = [ [1,0],[1,2],[1,5],[2,3],[3,4],[5,6],[6,7],[1,8],[8,9],[9,10],[1,11],[11,12],[12,13],[0,14],[0,15],[14,16],[15,17]]
-
         elif mode == 'mpi' :
             self.proto_file = "../models/pose/mpi/pose_deploy_linevec_faster_4_stages.prototxt"
             self.weights_file = "../models/pose/mpi/pose_iter_160000.caffemodel"
             self.n_points = 15
             self.pose_pairs = [[0,1], [1,2], [2,3], [3,4], [1,5], [5,6], [6,7], [1,14], [14,8], [8,9], [9,10], [14,11], [11,12], [12,13] ]
+        else:
+            raise Exception('PoseEstimator mode not "coco" or "mpi"')
         
         # Read the network into Memory
         self.net = cv2.dnn.readNetFromCaffe(self.proto_file, self.weights_file)
@@ -98,7 +99,7 @@ if __name__ == '__main__':
     
     vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
-    pose = PoseEstimator(mode='coco')
+    pose = PoseEstimator(mode='mpi')
     
     while cap.isOpened():
         t = time.time()
