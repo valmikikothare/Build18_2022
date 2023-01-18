@@ -1,23 +1,8 @@
 import numpy as np
 import cv2
 import time
-import ffmpeg
-
-def check_rotation(video_path):
-    # this returns meta-data of the video file in form of a dictionary
-    meta_dict = ffmpeg.probe(video_path)
-
-    # from the dictionary, meta_dict['streams'][0]['tags']['rotate'] is the key
-    # we are looking for
-    rotate_code = None
-    if int(meta_dict['streams'][0]['tags']['rotate']) == 90:
-        rotate_code = cv2.ROTATE_90_CLOCKWISE
-    elif int(meta_dict['streams'][0]['tags']['rotate']) == 180:
-        rotate_code = cv2.ROTATE_180
-    elif int(meta_dict['streams'][0]['tags']['rotate']) == 270:
-        rotate_code = cv2.ROTATE_90_COUNTERCLOCKWISE
-
-    return rotate_code
+import os
+import argparse
 
 class PoseEstimator:
     def __init__(self, mode='mpi'):
@@ -71,22 +56,31 @@ class PoseEstimator:
         
             if prob > threshold :
                 # Add the point to the list if the probability is greater than the threshold
+                assert x >= 0 and y >= 0
                 points.append((int(x), int(y)))
             else :
-                points.append(None)
+                points.append((-1, -1))
 
-        return points
+        return np.array(points)
 
-if __name__ == '__main__':
-    video_path = '../data/henry.mp4'
-    output_path = '../output/henry_pose.mp4'
+def main():
+    parser = argparse.ArgumentParser()
 
-    cap = cv2.VideoCapture(video_path)
+    parser.add_argument('vid_path', help='Video File Path for Pose Tracking', nargs='*')
 
-    # output_path = '../output/webcam.mp4'
+    args = parser.parse_args()
 
-    # cap = cv2.VideoCapture(-1)
-
+    if len(args.vid_path) == 0:
+        # Webcam Capture
+        cap = cv2.VideoCapture(0)
+        rotate_code = None
+        output_path = '../output/webcam.mp4'
+    else:
+        # Video File Capture
+        cap = cv2.VideoCapture(args.vid_path[0])
+        rotate_code = cv2.ROTATE_180
+        output_path = '../output/' + os.path.splitext(os.path.split(args.vid_path[0])[1])[0] + '_pose.mp4'
+    
     if not cap.isOpened():
         raise Exception("VideoCapture object cannot be opened")
 
@@ -94,14 +88,12 @@ if __name__ == '__main__':
     frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # float `height`
     fps = cap.get(cv2.CAP_PROP_FPS)
     assert fps > 10
-
-    rotate_code = cv2.ROTATE_180
     
     vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
     pose = PoseEstimator(mode='mpi')
     
-    while cap.isOpened():
+    while True:
         t = time.time()
         ret, frame = cap.read()
         # if frame is read correctly ret is True
@@ -119,15 +111,24 @@ if __name__ == '__main__':
             partA = pair[0]
             partB = pair[1]
 
-            if points[partA] and points[partB]:
-                cv2.line(frame, points[partA], points[partB], (0, 255, 255), 3, lineType=cv2.LINE_AA)
-                cv2.circle(frame, points[partA], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-                cv2.circle(frame, points[partB], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+            if (points[partA,:] >= 0).all() and (points[partB,:] >= 0).all():
+                cv2.line(frame, points[partA,:], points[partB,:], (0, 255, 255), 3, lineType=cv2.LINE_AA)
+                cv2.circle(frame, points[partA,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+                cv2.circle(frame, points[partB,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+        
+        # for i, point in enumerate(points):
+        #     # cv2.circle(frame, point, 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+        #     cv2.putText(frame, str(i), point, cv2.FONT_HERSHEY_COMPLEX, .5, (0, 0, 255), 1, lineType=cv2.LINE_AA)
 
         cv2.putText(frame, "time taken = {:.2f} sec".format(time.time() - t), (50, 50), cv2.FONT_HERSHEY_COMPLEX, .8, (255, 50, 0), 2, lineType=cv2.LINE_AA)
         
-        cv2.imshow('Output Pose', frame)
-        cv2.waitKey(1)
-
         vid_writer.write(frame)
+
+        cv2.imshow('Output Pose', frame)
+        if cv2.waitKey(1) == ord('q'):
+            break
+
     vid_writer.release()
+
+if __name__ == '__main__':
+    main()

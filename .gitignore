@@ -1,4 +1,5 @@
 *.caffemodel
+.vscode/
 
 data/
 output/
