@@ -87,7 +87,6 @@ class PoseEstimator:
                 image = cv2.line(image, start_pos, end_pos, color, thickness)
             return image
 
-    
 
             #for frame1 in camera.capture_continuous(rawCapture, format="bgr",use_video_port=True):
             while True:
