@@ -4,6 +4,7 @@ import time
 import os
 from pose_estimation import PoseEstimator
 import argparse
+import tensorflow as tf
 
 class CalorieEstimator:
     def __init__(self):
