@@ -164,7 +164,7 @@ def main():
         vid_writer.write(frame)
 
         cv2.imshow('Output Pose', frame)
-        if cv2.waitKey(1) == ord('q'):
+        if cv2.waitKey(1) != -1:
             break
 
     vid_writer.release()

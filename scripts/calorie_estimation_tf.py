@@ -2,43 +2,41 @@ import numpy as np
 import cv2
 import time
 import os
-from pose_estimation import PoseEstimator
+from pose_estimation_tf import PoseEstimator
 import argparse
-import tensorflow as tf
 
 class CalorieEstimator:
     def __init__(self):
         self.d_scale = 0.002
         self.m_scale = 75
         head_mass = 3
-        neck_mass = 1
-        shoulder_mass = 3
+        shoulder_mass = 5
         elbow_mass = 2
         hand_mass = 1
-        hip_mass = 10
+        hip_mass = 5
         knee_mass = 5
         foot_mass = 2
-        torso_mass = 10
         self.mass = np.array([head_mass,
-                            neck_mass,
+                            0,
+                            0,
+                            0,
+                            0,
+                            shoulder_mass,
                             shoulder_mass,
                             elbow_mass,
-                            hand_mass,
-                            shoulder_mass,
                             elbow_mass,
                             hand_mass,
+                            hand_mass,
+                            hip_mass,
                             hip_mass,
                             knee_mass,
-                            foot_mass,
-                            hip_mass,
                             knee_mass,
                             foot_mass,
-                            torso_mass])
-        self.mass = self.m_scale*(self.mass/self.mass.mean())
-
+                            foot_mass])
+        self.mass = self.m_scale * self.mass / self.mass.mean()
 
     def estimate(self, points_prev, points_cur, dt):
-        v2 = (self.d_scale*(np.linalg.norm(points_cur - points_prev, axis=1))/dt)**2
+        v2 = (self.d_scale * (np.linalg.norm(points_cur - points_prev, axis=1))/dt)**2
         e = self.mass * v2
         return e.sum()/4184
 
@@ -70,7 +68,7 @@ def main():
     
     # vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
-    pose = PoseEstimator(mode='mpi')
+    pose = PoseEstimator()
     calorie = CalorieEstimator()
 
     points_prev = None
@@ -78,9 +76,6 @@ def main():
     total_calories = 0
     while True:
         ret, frame = cap.read()
-        cv2.imshow('Output Pose', frame)
-        if cv2.waitKey(1) != -1:
-            break
         dt = time.time() - t
         t = time.time()
         # if frame is read correctly ret is True
@@ -91,19 +86,18 @@ def main():
         if rotate_code is not None:
             frame = cv2.rotate(frame, rotate_code) 
 
-        points = pose.estimate(frame)
+        points, valid = pose.estimate(frame)
 
         # Draw Skeleton
-        # for pair in pose.pose_pairs:
-        #     partA = pair[0]
-        #     partB = pair[1]
+        for pair in pose.pose_pairs:
+            p1, p2 = pair
 
-        #     if (points[partA,:] >= 0).all() and (points[partB,:] >= 0).all():
-        #         cv2.line(frame, points[partA,:], points[partB,:], (0, 255, 255), 3, lineType=cv2.LINE_AA)
-        #         cv2.circle(frame, points[partA,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-        #         cv2.circle(frame, points[partB,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+            if valid[p1] and valid[p2]:
+                cv2.line(frame, points[p1,:], points[p2,:], (0, 255, 255), 3, lineType=cv2.LINE_AA)
+                cv2.circle(frame, points[p1,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+                cv2.circle(frame, points[p2,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
         
-        if points_prev is not None:
+        if points_prev is not None and valid.all():
             total_calories += calorie.estimate(points_prev, points, dt)
             cv2.putText(frame, "Calories Burnt = {:.2f}".format(total_calories), (50, 50), cv2.FONT_HERSHEY_COMPLEX, .8, (255, 50, 0), 2, lineType=cv2.LINE_AA)
             print(total_calories)
