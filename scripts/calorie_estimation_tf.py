@@ -105,6 +105,8 @@ def main():
         points_prev = points
         
         # vid_writer.write(frame)
+        # frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
 
         cv2.imshow('Output Pose', frame)
         if cv2.waitKey(1) != -1:

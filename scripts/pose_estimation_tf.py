@@ -114,12 +114,12 @@ def main():
         # Webcam Capture
         cap = cv2.VideoCapture(0)
         rotate_code = None
-        output_path = '../output/webcam.mp4'
+        # output_path = '../output/webcam.mp4'
     else:
         # Video File Capture
         cap = cv2.VideoCapture(args.vid_path[0])
         rotate_code = cv2.ROTATE_180
-        output_path = '../output/' + os.path.splitext(os.path.split(args.vid_path[0])[1])[0] + '_pose.mp4'
+        # output_path = '../output/' + os.path.splitext(os.path.split(args.vid_path[0])[1])[0] + '_pose.mp4'
     
     if not cap.isOpened():
         raise Exception("VideoCapture object cannot be opened")
@@ -129,7 +129,7 @@ def main():
     fps = cap.get(cv2.CAP_PROP_FPS)
     assert fps > 10
     
-    vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
+    # vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
 
     pose = PoseEstimator()
     
@@ -161,13 +161,14 @@ def main():
 
         cv2.putText(frame, "time taken = {:.2f} sec".format(time.time() - t), (50, 50), cv2.FONT_HERSHEY_COMPLEX, .8, (255, 50, 0), 2, lineType=cv2.LINE_AA)
         
-        vid_writer.write(frame)
+        # vid_writer.write(frame)
+        # frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
         cv2.imshow('Output Pose', frame)
         if cv2.waitKey(1) != -1:
             break
 
-    vid_writer.release()
+    # vid_writer.release()
 
 if __name__ == '__main__':
     main()
