@@ -6,8 +6,8 @@ import time
 import os
 import argparse
 # import tflite_runtime as tf
-# from tflite_runtime.interpreter import Interpreter
-from tensorflow.lite.python.interpreter import Interpreter
+from tflite_runtime.interpreter import Interpreter
+# from tensorflow.lite.python.interpreter import Interpreter
 
 class PoseEstimator:
     def __init__(self, model='lightning'):
