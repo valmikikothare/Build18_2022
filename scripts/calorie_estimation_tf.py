@@ -50,7 +50,7 @@ def main():
     if len(args.file) == 0:
         # Webcam Capture
         cap = cv2.VideoCapture(0)
-        rotate_code = None
+        rotate_code = cv2.ROTATE_90_CLOCKWISE
         # output_path = '../output/webcam.mp4'
     else:
         # Video File Capture
