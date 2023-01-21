@@ -1,5 +1,8 @@
 import RPi.GPIO as GPIO          
 from time import sleep
+import time
+
+cur_pos = 0
 
 in1 = 24
 in2 = 23
@@ -25,17 +28,53 @@ GPIO.setup(en2,GPIO.OUT)
 GPIO.output(in3,GPIO.LOW)
 GPIO.output(in4,GPIO.LOW)
 p2=GPIO.PWM(en2,1000)
-p2.start(25)
+p2.start(75)
+
 print("\n")
 print("The default speed & direction of motor is LOW & Forward.....")
 print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
-print("\n")    
+print("\n")
+
+def set_pos(x):
+
+    global cur_pos
+
+    if(x > cur_pos):
+        time_t = 20.0 * (x - cur_pos) / 100.0
+        start_time = time.time()
+        cur_time = start_time
+        while(cur_time - start_time < time_t):
+            GPIO.output(in1,GPIO.HIGH)
+            GPIO.output(in2,GPIO.LOW)
+            cur_time = time.time()
+
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.LOW)
+        cur_pos = x
+
+    if(x < cur_pos):
+        time_t = 20.0 * (cur_pos - x) / 100.0
+        start_time = time.time()
+        cur_time = start_time
+        while(cur_time - start_time < time_t):
+            GPIO.output(in1,GPIO.LOW)
+            GPIO.output(in2,GPIO.HIGH)
+            cur_time = time.time()
+
+        GPIO.output(in1,GPIO.LOW)
+        GPIO.output(in2,GPIO.LOW)
+        cur_pos = x
+
 
 while(1):
 
-    x=input()
+    x = input()
+    x = int(x)
+
+    set_pos(x)
     
-    if x=='r':
+    
+    """ if x=='r':
         print("run")
         if(temp1==1):
          GPIO.output(in1,GPIO.HIGH)
@@ -110,4 +149,4 @@ while(1):
     
     else:
         print("<<<  wrong data  >>>")
-        print("please enter the defined data to continue.....")
+        print("please enter the defined data to continue.....")"""
