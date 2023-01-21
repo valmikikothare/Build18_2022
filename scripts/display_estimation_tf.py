@@ -114,77 +114,142 @@ class PoseGet:
         return self.overlay_frame, self.total_calories, self.in_frame
 
 class ButtonWindow():
-    # Create the buttons
-    width, height = (1024, 600)
-    b_w = width/4.5
-    b_h = height/10
-    spacing = b_w/3
-    button_1 = pygame.Rect(width/2 - b_w/2 - spacing - b_w, height/2-b_h/2, b_w, b_h)
-    button_2 = pygame.Rect(width/2 - b_w/2, height/2-b_h/2, b_w, b_h)
-    cancel_button = pygame.Rect(width/2 + b_w/2 + spacing, height/2-b_h/2, b_w, b_h)
-    confirm_button = pygame.Rect(width/2 - b_w/2, height/2+b_h/2+spacing, b_w, b_h)
+    def __init__(self):
+        # Create the buttons
+        width, height = (1024, 600)
+        b_w = width/4.5
+        b_h = height/10
+        spacing = b_w/3
+        self.button_1 = pygame.Rect(width/2 - b_w/2 - spacing - b_w, height/2-b_h/2, b_w, b_h)
+        self.button_2 = pygame.Rect(width/2 - b_w/2, height/2-b_h/2, b_w, b_h)
+        self.cancel_button = pygame.Rect(width/2 + b_w/2 + spacing, height/2-b_h/2, b_w, b_h)
+        self.confirm_button = pygame.Rect(width/2 - b_w/2, height/2+b_h/2+spacing, b_w, b_h)
 
-    # Selection Menu Title
-    title = title_font.render("Please select your desired snack :)", True, BLACK)
-    title_rect = title.get_rect()
-    title_rect.center = (width/2, height/2 - b_h/2 - spacing)
+        title_font = pygame.font.SysFont('Calibri', 45, True, False)
+        font = pygame.font.SysFont('Calibri', 35, True, False)
+        number_font = pygame.font.SysFont('Calibri', 50, True, False)
 
-    button_1_label = number_font.render("1", True, BLACK)
-    button_1_rect = button_1_label.get_rect()
-    button_1_rect.center = button_1.center
+        # Selection Menu Title
+        self.title = title_font.render("Please select your desired snack :)", True, BLACK)
+        self.title_rect = self.title.get_rect()
+        self.title_rect.center = (width/2, height/2 - b_h/2 - spacing)
 
-    button_2_label = number_font.render("2", True, BLACK)
-    button_2_rect = button_2_label.get_rect()
-    button_2_rect.center = button_2.center
+        self.button_1_label = number_font.render("1", True, BLACK)
+        self.button_1_rect = self.button_1_label.get_rect()
+        self.button_1_rect.center = self.button_1.center
 
-    cancel_button_label = font.render("Cancel", True, BLACK)
-    cancel_button_rect = cancel_button_label.get_rect()
-    cancel_button_rect.center = cancel_button.center
+        self.button_2_label = number_font.render("2", True, BLACK)
+        self.button_2_rect = self.button_2_label.get_rect()
+        self.button_2_rect.center = self.button_2.center
 
-    confirm_button_label = font.render("Confirm", True, BLACK)
-    confirm_button_rect = confirm_button_label.get_rect()
-    confirm_button_rect.center = confirm_button.center
+        self.cancel_button_label = font.render("Cancel", True, BLACK)
+        self.cancel_button_rect = self.cancel_button_label.get_rect()
+        self.cancel_button_rect.center = self.cancel_button.center
 
-    title_font = pygame.font.Font(None, 45)
-    font = pygame.font.Font(None, 35)
-    number_font = pygame.font.Font(None, 50)
+        self.confirm_button_label = font.render("Confirm", True, BLACK)
+        self.confirm_button_rect = self.confirm_button_label.get_rect()
+        self.confirm_button_rect.center = self.confirm_button.center
 
-    # Stores states of buttons
-    current_selection = None
-    cancel_pressed = False
-    confirm_pressed = False
-    selecting = True
+        # Stores states of buttons
+        self.current_selection = None
+        self.cancel_pressed = False
+        self.confirm_pressed = False
+        self.selecting = True
+    
+    def setCancelPressed(self, input):
+        self.cancel_pressed = input
+
+    def setCurrentSelection(self, input):
+        self.current_selection = input
+
+    def setConfirmPressed(self, input):
+        self.confirm_pressed = input
+
+    def setSelecting(self, input):
+        self.selecting = input
+
+    def readCurrentSelection(self):
+        return self.current_selection
+
+    def readButtons(self):
+        return self.button_1, self.button_2, self.cancel_button, self.confirm_button
     
     def displayWindow(self, screen):
         # Draw the buttons
         buttonColors = [LIGHT_GREY, LIGHT_GREY, LIGHT_GREY, LIGHT_GREY]
-        if current_selection == 1:
+        if self.current_selection == 1:
             buttonColors[0] = GREY
-        elif current_selection == 2:
+        elif self.current_selection == 2:
             buttonColors[1] = GREY
         
-        if cancel_pressed:
+        if self.cancel_pressed:
             buttonColors[2] = GREY
-        if confirm_pressed:
+        if self.confirm_pressed:
             buttonColors[3] = GREY
         
-        pygame.draw.rect(screen, buttonColors[0], button_1)
-        pygame.draw.rect(screen, BLACK, button_1, 2)
-        pygame.draw.rect(screen, buttonColors[1], button_2)
-        pygame.draw.rect(screen, BLACK, button_2, 2)
-        pygame.draw.rect(screen, buttonColors[2], cancel_button)
-        pygame.draw.rect(screen, BLACK, cancel_button, 2)
-        current_selection and pygame.draw.rect(screen, buttonColors[3], confirm_button)
-        current_selection and pygame.draw.rect(screen, BLACK, confirm_button, 2)
+        pygame.draw.rect(screen, buttonColors[0], self.button_1)
+        pygame.draw.rect(screen, BLACK, self.button_1, 2)
+        pygame.draw.rect(screen, buttonColors[1], self.button_2)
+        pygame.draw.rect(screen, BLACK, self.button_2, 2)
+        pygame.draw.rect(screen, buttonColors[2], self.cancel_button)
+        pygame.draw.rect(screen, BLACK, self.cancel_button, 2)
+        self.current_selection and pygame.draw.rect(screen, buttonColors[3], self.confirm_button)
+        self.current_selection and pygame.draw.rect(screen, BLACK, self.confirm_button, 2)
         
         # Draw the button labels
-        screen.blit(button_1_label, button_1_rect)
-        screen.blit(button_2_label, button_2_rect)
-        screen.blit(cancel_button_label, cancel_button_rect)
-        current_selection and screen.blit(confirm_button_label, confirm_button_rect)
+        screen.blit(self.button_1_label, self.button_1_rect)
+        screen.blit(self.button_2_label, self.button_2_rect)
+        screen.blit(self.cancel_button_label, self.cancel_button_rect)
+        self.current_selection and screen.blit(self.confirm_button_label, self.confirm_button_rect)
         
         # Draw the title
-        screen.blit(title, title_rect)
+        screen.blit(self.title, self.title_rect)
+
+        pygame.display.flip()
+
+class VideoWindow():
+    def __init__(self, video_getter, pose_getter):
+        self.font = pygame.font.SysFont('Calibri', 30, True, False)
+        self.video_getter = video_getter
+        self.pose_getter = pose_getter
+        self.calorie_display = pygame.Rect(0, 0, 100, 200)
+        self.discount_display = pygame.Rect(0, 200, 100, 200)
+        self.stop_display = pygame.Rect(0, 400, 100, 200)
+
+    def displayWindow(self, screen, STOP_COLOR):
+        frame = self.video_getter.frame
+        # frame = self.pose_getter.overlay_frame
+        frame = cv2.resize(frame, (1024, 600))
+
+        video_surf = pygame.image.frombuffer(frame.tobytes(), frame.shape[1::-1], "RGB")
+
+        pygame.draw.rect(video_surf, GREY, self.calorie_display)
+        calorie_text = self.font.render(f"Calories: {self.pose_getter.read_calories()}", True, BLACK)
+        calorie_text = pygame.transform.rotate(calorie_text, 270)
+        calorie_text_rect = calorie_text.get_rect()
+        calorie_text_rect.center = self.calorie_display.center
+        video_surf.blit(calorie_text, calorie_text_rect)
+
+        pygame.draw.rect(video_surf, GREEN, self.discount_display)
+        display_text = self.font.render(f"Discount: TODO", True, BLACK)
+        display_text = pygame.transform.rotate(display_text, 270)
+        display_text_rect = display_text.get_rect()
+        display_text_rect.center = self.discount_display.center
+        video_surf.blit(display_text, display_text_rect)
+
+        pygame.draw.rect(video_surf, STOP_COLOR, self.stop_display)
+        stop_text = self.font.render("Pay", True, BLACK)
+        stop_text = pygame.transform.rotate(stop_text, 270)
+        stop_text_rect = stop_text.get_rect()
+        stop_text_rect.center = self.stop_display.center
+        video_surf.blit(stop_text, stop_text_rect)
+
+        screen.blit(video_surf, (0, 0))
+
+        pygame.display.flip()
+    
+    def readStop(self):
+        return self.stop_display
 
 def main():
     parser = argparse.ArgumentParser()
@@ -226,48 +291,49 @@ def main():
 
     windowOpen = True
     openWindow = BUTTON_WINDOW
+    buttonWindow = ButtonWindow()
+    videoWindow = VideoWindow(video_getter, pose_getter)
 
     while windowOpen:
-        mouse = pygame.mouse.get_pos()
-
         for event in pygame.event.get(): 
             if event.type == pygame.QUIT:
                 windowOpen = False
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if 0 <= mouse[0] <= 100 and 400 <= mouse[1] <= 600:
-                    STOP_COLOR = DARK_RED
+                if (openWindow == BUTTON_WINDOW):
+                    current_selection = buttonWindow.readCurrentSelection()
+                    button_1, button_2, cancel_button, confirm_button = buttonWindow.readButtons()
+                    if current_selection != 1 and button_1.collidepoint(event.pos):
+                        buttonWindow.setCurrentSelection(1)
+                    elif current_selection != 2 and button_2.collidepoint(event.pos):
+                        buttonWindow.setCurrentSelection(2)
+                    elif cancel_button.collidepoint(event.pos):
+                        buttonWindow.setCancelPressed(True)
+                        buttonWindow.setCurrentSelection(None)
+                    elif current_selection and confirm_button.collidepoint(event.pos):
+                        buttonWindow.setConfirmPressed(True)
+                elif (openWindow == VIDEO_WINDOW):
+                    stop_display = videoWindow.readStop()
+                    if stop_display.collidepoint(event.pos):
+                        STOP_COLOR = DARK_RED
             elif event.type == pygame.MOUSEBUTTONUP:
-                if 0 <= mouse[0] <= 100 and 400 <= mouse[1] <= 600:
-                    windowOpen = False
+                if (openWindow == BUTTON_WINDOW):
+                    button_1, button_2, cancel_button, confirm_button = buttonWindow.readButtons()
+                    if cancel_button.collidepoint(event.pos):
+                        buttonWindow.setCancelPressed(False)
+                    elif current_selection and confirm_button.collidepoint(event.pos):
+                        buttonWindow.setConfirmPressed(False)
+                        buttonWindow.setSelecting(False)
+                        openWindow = VIDEO_WINDOW
+                elif (openWindow == VIDEO_WINDOW):
+                    stop_display = videoWindow.readStop()
+                    if stop_display.collidepoint(event.pos):
+                        windowOpen = False
+                        openWindow = BUTTON_WINDOW
         
         if (openWindow == BUTTON_WINDOW):
-            
+            buttonWindow.displayWindow(screen)
         else:
-            font = pygame.font.SysFont('Calibri', 30, True, False)
-            frame = video_getter.frame
-            # frame = pose_getter.overlay_frame
-            frame = cv2.resize(frame, (1024, 600))
-
-            video_surf = pygame.image.frombuffer(frame.tobytes(), frame.shape[1::-1], "RGB")
-
-            pygame.draw.rect(video_surf, GREY, [0, 0, 100, 200])
-            text = font.render(f"Calories: {pose_getter.read_calories()}", True, BLACK)
-            text = pygame.transform.rotate(text, 270)
-            video_surf.blit(text, [45, 20])
-
-            pygame.draw.rect(video_surf, GREEN, [0, 200, 100, 200])
-            text = font.render(f"Discount: TODO", True, BLACK)
-            text = pygame.transform.rotate(text, 270)
-            video_surf.blit(text, [45, 220])
-
-            pygame.draw.rect(video_surf, STOP_COLOR, [0, 400, 100, 200])
-            text = font.render("Pay", True, BLACK)
-            text = pygame.transform.rotate(text, 270)
-            video_surf.blit(text, [45, 450])
-
-            screen.blit(video_surf, (0, 0))
-
-            pygame.display.flip()
+            videoWindow.displayWindow(screen, STOP_COLOR)
 
     # vid_writer.release()
     pygame.quit()
