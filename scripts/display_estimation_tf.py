@@ -39,27 +39,34 @@ class VideoGet:
     def stop(self):
         self.stopped = True
 
+    def read(self):
+        return self.frame
+
 class PoseGet:
-    def __init__(self, rotate_code):
+    def __init__(self, rotate_code=cv2.ROTATE_90_CLOCKWISE, render_frame=False):
         self.pose = PoseEstimator()
         self.calorie = CalorieEstimator()
-        self.points_prev = None
         self.t = time.time()
         self.total_calories = 0
-        self.rotate_code = rotate_code
         self.overlay_frame = None
+        self.in_frame = False
+        self.rotate_code = rotate_code
         self.stopped = False
+        self.window_size = 5
+        self.window_x = []
+        self.window_y = []
+        self.window_t = []
+        self.render_frame = render_frame
 
     def start(self, video_obj):
-        self.overlay_frame = video_obj.frame
+        self.overlay_frame = video_obj.read()
         Thread(target=self.get, args=(video_obj,)).start()
         return self
 
     def get(self, video_obj):
         while not self.stopped:
             ret, frame = video_obj.grabbed, video_obj.frame
-            dt = time.time() - self.t
-            self.t = time.time()
+            self.window_t.append(time.time())
 
             # if frame is read correctly ret is True
             if not ret:
@@ -72,33 +79,39 @@ class PoseGet:
             points, valid = self.pose.estimate(frame)
 
             # Draw Skeleton
-            for pair in self.pose.pose_pairs:
-                p1, p2 = pair
-
-                if valid[p1] and valid[p2]:
-                    cv2.line(frame, points[p1,:], points[p2,:], (0, 255, 255), 3, lineType=cv2.LINE_AA)
-                    cv2.circle(frame, points[p1,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
-                    cv2.circle(frame, points[p2,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+            if self.render_frame:
+                for pair in self.pose.pose_pairs:
+                    p1, p2 = pair
+                    if valid[p1] and valid[p2]:
+                        cv2.line(frame, points[p1,:], points[p2,:], (0, 255, 255), 3, lineType=cv2.LINE_AA)
+                        cv2.circle(frame, points[p1,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
+                        cv2.circle(frame, points[p2,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
             
-            if self.points_prev is not None and valid.all():
-                self.total_calories += self.calorie.estimate(self.points_prev, points, dt)
-                cv2.putText(frame, "Calories Burnt = {:.2f}".format(self.total_calories), (50, 50), cv2.FONT_HERSHEY_COMPLEX, .8, (255, 50, 0), 2, lineType=cv2.LINE_AA)
-                print(self.total_calories)
+            calories = 0
+            if valid.all():
+                self.window_x.append(points[:,0])
+                self.window_y.append(points[:,1])
+                if len(self.window_x) == self.window_size:
+                    window_x = np.column_stack(self.window_x)
+                    window_y = np.column_stack(self.window_y)
+                    dx = (window_x[:,1:] - window_x[:,:-1]).mean(axis=1)
+                    dy = (window_y[:,1:] - window_y[:,:-1]).mean(axis=1)
+                    displacement = np.column_stack(dx, dy)
+                    dt = (self.window_t[-1] - self.window_t[0]) / self.window_size
+                    calories = self.calorie.estimate(displacement, dt)
+                    self.window_x.pop(0)
+                    self.window_y.pop(0)
+                    self.window_t.pop(0)
             
             self.overlay_frame = frame
-            self.points_prev = points
-    
+            self.total_calories += calories
+            self.in_frame = valid.all()
+
     def stop(self):
         self.stopped = True
 
-    def read_calories(self):
-        return self.total_calories
-        
-    def read_frame(self):
-        return self.overlay_frame
-
-    def read_frame_and_calories(self):
-        return self.overlay_frame, self.total_calories
+    def read(self):
+        return self.overlay_frame, self.total_calories, self.in_frame
 
 class ButtonWindow():
     # Create the buttons
