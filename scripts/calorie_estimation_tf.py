@@ -35,8 +35,8 @@ class CalorieEstimator:
                             foot_mass])
         self.mass = self.m_scale * self.mass / self.mass.mean()
 
-    def estimate(self, points_prev, points_cur, dt):
-        v2 = (self.d_scale * (np.linalg.norm(points_cur - points_prev, axis=1))/dt)**2
+    def estimate(self, displacement, dt):
+        v2 = (self.d_scale * (np.linalg.norm(displacement, axis=1))/dt)**2
         e = self.mass * v2
         return e.sum()/4184
 
