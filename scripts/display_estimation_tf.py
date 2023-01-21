@@ -46,11 +46,11 @@ class PoseGet:
     def __init__(self, rotate_code=cv2.ROTATE_90_CLOCKWISE, render_frame=False):
         self.pose = PoseEstimator()
         self.calorie = CalorieEstimator()
-        self.points_prev = None
         self.t = time.time()
         self.total_calories = 0
-        self.rotate_code = rotate_code
         self.overlay_frame = None
+        self.in_frame = False
+        self.rotate_code = rotate_code
         self.stopped = False
         self.window_size = 5
         self.window_x = []
@@ -87,6 +87,7 @@ class PoseGet:
                         cv2.circle(frame, points[p1,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
                         cv2.circle(frame, points[p2,:], 8, (0, 0, 255), thickness=-1, lineType=cv2.FILLED)
             
+            calories = 0
             if valid.all():
                 self.window_x.append(points[:,0])
                 self.window_y.append(points[:,1])
@@ -97,25 +98,20 @@ class PoseGet:
                     dy = (window_y[:,1:] - window_y[:,:-1]).mean(axis=1)
                     displacement = np.column_stack(dx, dy)
                     dt = (self.window_t[-1] - self.window_t[0]) / self.window_size
-                    self.total_calories += self.calorie.estimate(self.points_prev, displacement, dt)
+                    calories = self.calorie.estimate(displacement, dt)
                     self.window_x.pop(0)
                     self.window_y.pop(0)
                     self.window_t.pop(0)
             
             self.overlay_frame = frame
-            self.points_prev = points
-    
+            self.total_calories += calories
+            self.in_frame = valid.all()
+
     def stop(self):
         self.stopped = True
 
-    def read_calories(self):
-        return self.total_calories
-        
-    def read_frame(self):
-        return self.overlay_frame
-
-    def read_frame_and_calories(self):
-        return self.overlay_frame, self.total_calories
+    def read(self):
+        return self.overlay_frame, self.total_calories, self.in_frame
 
 class ButtonWindow():
     # Create the buttons
