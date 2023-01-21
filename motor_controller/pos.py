@@ -35,35 +35,39 @@ print("The default speed & direction of motor is LOW & Forward.....")
 print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
 print("\n")
 
-def set_pos(x):
+class MotorController:
+    def __init__(self, init_target=100):
+        self.target = 100
+        self.cur_pos = 0
 
-    global cur_pos
+    def start()
 
-    if(x > cur_pos):
-        time_t = 20.0 * (x - cur_pos) / 100.0
-        start_time = time.time()
-        cur_time = start_time
-        while(cur_time - start_time < time_t):
-            GPIO.output(in1,GPIO.HIGH)
-            GPIO.output(in2,GPIO.LOW)
-            cur_time = time.time()
+    def set_pos(x):
+        if(x > cur_pos):
+            time_t = 20.0 * (x - cur_pos) / 100.0
+            start_time = time.time()
+            cur_time = start_time
+            while(cur_time - start_time < time_t):
+                GPIO.output(in1,GPIO.HIGH)
+                GPIO.output(in2,GPIO.LOW)
+                cur_time = time.time()
 
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
-        cur_pos = x
-
-    if(x < cur_pos):
-        time_t = 20.0 * (cur_pos - x) / 100.0
-        start_time = time.time()
-        cur_time = start_time
-        while(cur_time - start_time < time_t):
             GPIO.output(in1,GPIO.LOW)
-            GPIO.output(in2,GPIO.HIGH)
-            cur_time = time.time()
+            GPIO.output(in2,GPIO.LOW)
+            cur_pos = x
 
-        GPIO.output(in1,GPIO.LOW)
-        GPIO.output(in2,GPIO.LOW)
-        cur_pos = x
+        if(x < cur_pos):
+            time_t = 20.0 * (cur_pos - x) / 100.0
+            start_time = time.time()
+            cur_time = start_time
+            while(cur_time - start_time < time_t):
+                GPIO.output(in1,GPIO.LOW)
+                GPIO.output(in2,GPIO.HIGH)
+                cur_time = time.time()
+
+            GPIO.output(in1,GPIO.LOW)
+            GPIO.output(in2,GPIO.LOW)
+            cur_pos = x
 
 
 while(1):

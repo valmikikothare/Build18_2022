@@ -61,13 +61,6 @@ def main():
     if not cap.isOpened():
         raise Exception("VideoCapture object cannot be opened")
 
-    # frame_width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))   # float `width`
-    # frame_height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))  # float `height`
-    # fps = cap.get(cv2.CAP_PROP_FPS)
-    # assert fps > 10
-    
-    # vid_writer = cv2.VideoWriter(output_path, cv2.VideoWriter_fourcc(*'mp4v'), fps, (frame_width, frame_height))
-
     pose = PoseEstimator()
     calorie = CalorieEstimator()
 

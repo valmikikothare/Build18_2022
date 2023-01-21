@@ -216,15 +216,19 @@ class VideoWindow():
         self.discount_display = pygame.Rect(0, 200, 100, 200)
         self.stop_display = pygame.Rect(0, 400, 100, 200)
 
-    def displayWindow(self, screen, STOP_COLOR):
-        frame = self.video_getter.frame
-        # frame = self.pose_getter.overlay_frame
+    def displayWindow(self, screen, STOP_COLOR, render_pose=False):
+        if render_pose:
+            frame, total_calories, in_frame = self.pose_getter.read()
+        else:
+            frame = self.video_getter.read()
+            _, total_calories, in_frame = self.pose_getter.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.resize(frame, (1024, 600))
 
         video_surf = pygame.image.frombuffer(frame.tobytes(), frame.shape[1::-1], "RGB")
 
         pygame.draw.rect(video_surf, GREY, self.calorie_display)
-        calorie_text = self.font.render(f"Calories: {self.pose_getter.read_calories()}", True, BLACK)
+        calorie_text = self.font.render(f"Calories: {total_calories:.2f}", True, BLACK)
         calorie_text = pygame.transform.rotate(calorie_text, 270)
         calorie_text_rect = calorie_text.get_rect()
         calorie_text_rect.center = self.calorie_display.center
