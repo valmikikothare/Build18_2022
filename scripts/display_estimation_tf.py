@@ -91,6 +91,15 @@ class PoseGet:
     def stop(self):
         self.stopped = True
 
+    def read_calories(self):
+        return self.total_calories
+        
+    def read_frame(self):
+        return self.overlay_frame
+
+    def read_frame_and_calories(self):
+        return self.overlay_frame, self.total_calories
+
 class ButtonWindow():
     # Create the buttons
     width, height = (1024, 600)
@@ -229,7 +238,7 @@ def main():
             video_surf = pygame.image.frombuffer(frame.tobytes(), frame.shape[1::-1], "RGB")
 
             pygame.draw.rect(video_surf, GREY, [0, 0, 100, 200])
-            text = font.render(f"Calories: {pose_getter.total_calories}", True, BLACK)
+            text = font.render(f"Calories: {pose_getter.read_calories()}", True, BLACK)
             text = pygame.transform.rotate(text, 270)
             video_surf.blit(text, [45, 20])
 
