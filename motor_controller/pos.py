@@ -1,12 +1,13 @@
-import RPi.GPIO as GPIO          
-from time import sleep
+import RPi.GPIO as GPIO
 import time
+from threading import Thread
+
 
 cur_pos = 0
 
 in1 = 24
 in2 = 23
-en = 25
+en1 = 25
 temp1=1
 
 in3 = 5
@@ -16,10 +17,10 @@ en2 = 12
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(in1,GPIO.OUT)
 GPIO.setup(in2,GPIO.OUT)
-GPIO.setup(en,GPIO.OUT)
+GPIO.setup(en1,GPIO.OUT)
 GPIO.output(in1,GPIO.LOW)
 GPIO.output(in2,GPIO.LOW)
-p=GPIO.PWM(en,1000)
+p=GPIO.PWM(en1,1000)
 p.start(75)
 
 GPIO.setup(in3,GPIO.OUT)
@@ -36,46 +37,77 @@ print("r-run s-stop f-forward b-backward l-low m-medium h-high e-exit")
 print("\n")
 
 class MotorController:
-    def __init__(self, init_target=100):
-        self.target = 100
+    def __init__(self, init_target=100, eps=1):
+        self.target_pos = init_target
         self.cur_pos = 0
+        self.eps = eps
+        self.vel = 100.0/20.0
 
-    def start()
+    def start(self):
+        Thread(target=self._start, args=()).start()
+        return self
 
-    def set_pos(x):
-        if(x > cur_pos):
-            time_t = 20.0 * (x - cur_pos) / 100.0
-            start_time = time.time()
-            cur_time = start_time
-            while(cur_time - start_time < time_t):
-                GPIO.output(in1,GPIO.HIGH)
-                GPIO.output(in2,GPIO.LOW)
-                cur_time = time.time()
+    def _start(self):
+        vel = 0
+        while not self.stopped:
+            t = time.time()
+            while abs(self.cur_pos - self.target_pos) > self.eps:
+                if self.cur_pos < self.target_pos:
+                    vel = self.vel
+                    GPIO.output(in1,GPIO.HIGH)
+                    GPIO.output(in2,GPIO.LOW)
+                else:
+                    vel = -self.vel
+                    GPIO.output(in1,GPIO.LOW)
+                    GPIO.output(in2,GPIO.HIGH)
+
+                time.sleep(0.01)
+                self.cur_pos += (time.time() - t) * vel
+                t = time.time()
 
             GPIO.output(in1,GPIO.LOW)
             GPIO.output(in2,GPIO.LOW)
-            cur_pos = x
 
-        if(x < cur_pos):
-            time_t = 20.0 * (cur_pos - x) / 100.0
-            start_time = time.time()
-            cur_time = start_time
-            while(cur_time - start_time < time_t):
-                GPIO.output(in1,GPIO.LOW)
-                GPIO.output(in2,GPIO.HIGH)
-                cur_time = time.time()
+    def stop(self):
+        self.stopped = True
 
-            GPIO.output(in1,GPIO.LOW)
-            GPIO.output(in2,GPIO.LOW)
-            cur_pos = x
+    def set(self, target_pos):
+        self.target_pos = target_pos
+
+# def set_pos(x):
+#     if(x > cur_pos):
+#         time_t = 20.0 * (x - cur_pos) / 100.0
+#         start_time = time.time()
+#         cur_time = start_time
+#         while(cur_time - start_time < time_t):
+#             GPIO.output(in1,GPIO.HIGH)
+#             GPIO.output(in2,GPIO.LOW)
+#             cur_time = time.time()
+
+#         GPIO.output(in1,GPIO.LOW)
+#         GPIO.output(in2,GPIO.LOW)
+#         cur_pos = x
+
+#     if(x < cur_pos):
+#         time_t = 20.0 * (cur_pos - x) / 100.0
+#         start_time = time.time()
+#         cur_time = start_time
+#         while(cur_time - start_time < time_t):
+#             GPIO.output(in1,GPIO.LOW)
+#             GPIO.output(in2,GPIO.HIGH)
+#             cur_time = time.time()
+
+#         GPIO.output(in1,GPIO.LOW)
+#         GPIO.output(in2,GPIO.LOW)
+#         cur_pos = x
 
 
-while(1):
+# while(1):
 
-    x = input()
-    x = int(x)
+#     x = input()
+#     x = int(x)
 
-    set_pos(x)
+#     set_pos(x)
     
     
     """ if x=='r':
